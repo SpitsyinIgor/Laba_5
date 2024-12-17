@@ -15,3 +15,7 @@ class FirstImplementation implements FirstInterface {
 class SecondImplementation implements FirstInterface {
     public void execute() { System.out.println("Y"); }
 }
+
+class SecondExecutor implements SecondInterface {
+    public void perform() { System.out.println("Z"); }
+}
