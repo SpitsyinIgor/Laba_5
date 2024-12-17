@@ -20,4 +20,31 @@ public class DependencyInjector {
     }
 
   
+    public <T> T injectDependencies(T target) {
+        try {
+            Class<?> targetClass = target.getClass();
+            Object instance = targetClass.getDeclaredConstructor().newInstance();
+            Field[] fields = targetClass.getDeclaredFields();
+
+            for (Field field : fields) {
+                Annotation[] fieldAnnotations = field.getAnnotations();
+                if (Arrays.stream(fieldAnnotations).anyMatch(annotation -> annotation.annotationType() == AutoInjectable.class)) {
+                    field.setAccessible(true);
+                    Class<?> fieldType = field.getType();
+                    String typeName = fieldType.getName();
+
+                    Object dependencyName = this.config.get(typeName);
+                    String dependencyClassName = dependencyName.toString();
+
+                    Class<?> dependencyClass = Class.forName(dependencyClassName);
+                    Object dependencyInstance = dependencyClass.getDeclaredConstructor().newInstance();
+                    field.set(instance, dependencyInstance);
+                }
+            }
+            return (T) instance;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return null;
+        }
+    }
 }
